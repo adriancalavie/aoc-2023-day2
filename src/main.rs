@@ -33,13 +33,33 @@ impl Game {
             cube_sets: cubes,
         }
     }
+
+    fn get_minimum_required_cube_set(&self) -> CubeSet {
+        let mut max_red = 0;
+        let mut max_green = 0;
+        let mut max_blue = 0;
+
+        for cube_set in &self.cube_sets {
+            if cube_set.red > max_red {
+                max_red = cube_set.red
+            }
+            if cube_set.green > max_green {
+                max_green = cube_set.green
+            }
+            if cube_set.blue > max_blue {
+                max_blue = cube_set.blue
+            }
+        }
+
+        CubeSet::from(max_red, max_green, max_blue)
+    }
 }
 
 #[derive(Debug)]
 struct CubeSet {
-    red: i32,
-    green: i32,
-    blue: i32,
+    red: i64,
+    green: i64,
+    blue: i64,
 }
 
 impl CubeSet {
@@ -52,7 +72,7 @@ impl CubeSet {
     }
 
     #[allow(dead_code)]
-    fn from(red: i32, green: i32, blue: i32) -> Self {
+    fn from(red: i64, green: i64, blue: i64) -> Self {
         CubeSet { red, green, blue }
     }
 
@@ -61,7 +81,7 @@ impl CubeSet {
 
         str.trim().split(',').for_each(|str| {
             let parts = str.trim().split(' ').collect::<Vec<&str>>();
-            let num = parts[0].parse::<i32>().unwrap();
+            let num = parts[0].parse::<i64>().unwrap();
             let color = parts[1];
 
             match color {
@@ -81,6 +101,10 @@ impl CubeSet {
         self.red <= MAXIMUM_CUBE_SET.red
             && self.green <= MAXIMUM_CUBE_SET.green
             && self.blue <= MAXIMUM_CUBE_SET.blue
+    }
+
+    fn power(&self) -> i64 {
+        self.red * self.green * self.blue
     }
 }
 
@@ -110,22 +134,30 @@ fn main() {
     // let path = "res/data_light.txt";
     let lines = get_input(path);
 
-    let mut count = 0;
+    // let mut count = 0;
+    let mut sum = 0;
 
     for line in lines {
         let game = Game::from_string(&line);
         println!("Game {}: {:?}", game.id, game.cube_sets);
-        let mut should_increment: bool = true;
-        for cube_set in game.cube_sets {
-            if !cube_set.is_valid() {
-                should_increment = false;
-                break;
-            }
-        }
-        if should_increment {
-            count += game.id
-        }
+
+        // solution for part 1
+        // let mut should_increment: bool = true;
+        // for cube_set in game.cube_sets {
+        //     if !cube_set.is_valid() {
+        //         should_increment = false;
+        //         break;
+        //     }
+        // }
+        // if should_increment {
+        //     count += game.id
+        // }
+
+        // solution for part 2
+        let cube_set = game.get_minimum_required_cube_set();
+        sum += cube_set.power();
     }
 
-    println!("Count: {}", count);
+    // println!("Count: {}", count);
+    println!("Count: {}", sum);
 }
